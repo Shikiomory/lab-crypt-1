@@ -1,0 +1,6 @@
+services:
+  app:
+    build: .
+    volumes:
+      - ./imgs:/app/imgs
+      - ./results:/app/results
