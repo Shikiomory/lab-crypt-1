@@ -1,0 +1,5 @@
+{
+  "algoritm": "aes-ctr",
+  "Nonce": "c3c9266a6c5cfc27b50db7431b7d55ec",
+  "source": "noise_textureCTR-dec.png"
+}

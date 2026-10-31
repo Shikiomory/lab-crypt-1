@@ -11,7 +11,7 @@ import (
 func readImage(filePath string) ([]byte, image.Rectangle, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, image.Rectangle{}, fmt.Errorf("Ошибка при открытии файла", err)
+		return nil, image.Rectangle{}, fmt.Errorf("Ошибка при открытии файла: %w", err)
 	}
 
 	defer file.Close()
@@ -31,7 +31,7 @@ func readImage(filePath string) ([]byte, image.Rectangle, error) {
 func saveImage(pixels []byte, bounds image.Rectangle, filePath string) error {
 	outFile, err := os.Create(filePath)
 	if err != nil {
-		return fmt.Errorf("Ошибка при сохраении файла", err)
+		return fmt.Errorf("Ошибка при сохраении файла: %w", err)
 	}
 
 	defer outFile.Close()
