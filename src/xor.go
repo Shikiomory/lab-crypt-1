@@ -18,3 +18,16 @@ func (this *XorShift32) NextByte() byte {
 	this.state ^= this.state << 5
 	return byte(this.state & 0xFF)
 }
+
+func XorCipher(data []byte, seed uint32) []byte {
+	prng := NewXorShift32(seed)
+
+	datalen := len(data)
+	result := make([]byte, datalen)
+
+	for i := range datalen {
+		result[i] = data[i] ^ prng.NextByte()
+	}
+
+	return result
+}

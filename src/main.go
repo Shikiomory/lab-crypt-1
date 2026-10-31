@@ -1,14 +1,26 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
-	rng := NewXorShift32(42)
+	var key uint32 = 42
+	plainText := "Hello, world!"
+
+	fmt.Println("Оригинальное сообщение: ", plainText)
 
 	fmt.Println("Начало шифровки")
+	cipherText := XorCipher([]byte(plainText), key)
+	fmt.Printf("Сообщение зашифровано: %X\n", cipherText)
 
-	for i := 0; i < 5; i++ {
-		b := rng.NextByte()
-		fmt.Printf("Байт %d: %3d (hex: 0x%02X)\n", i+1, b, b)
+	fmt.Println("Начало дешифровки")
+	decryptedText := XorCipher(cipherText, key)
+	fmt.Println("Расшифрованное сообщение: ", string(decryptedText))
+
+	if plainText == string(decryptedText) {
+		fmt.Println("Сообщения совпадают")
+	} else {
+		fmt.Println("Сообщения не совпадают")
 	}
 }
