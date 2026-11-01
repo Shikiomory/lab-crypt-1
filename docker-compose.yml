@@ -1,6 +1,11 @@
 services:
   app:
     build: .
+    environment:
+      - HISTOGRAM_IMG_PATH=/app/results/histogram.png
+      - HISTOGRAM_CSV_PATH=/app/results/histogram.csv
+      - SRC_IMG_PATH=${SRC_IMG_PATH:-/app/imgs/gradient.png}
     volumes:
       - ./imgs:/app/imgs
       - ./results:/app/results
+      - ./report.md:/app/report.md

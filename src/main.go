@@ -13,6 +13,16 @@ import (
 )
 
 const jsonPathFile string = "results/meta.json"
+const metricsPathFile string = "results/metrics.csv"
+const reportPathFile string = "report.md"
+
+func getEnv(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value != "" {
+		return value
+	}
+	return defaultValue
+}
 
 func runXOR(pixels []byte, bounds image.Rectangle, key uint32, srcImgPath string) ([]byte, error) {
 	fmt.Println("\n===== Работа XOR: =====\n")
@@ -179,9 +189,15 @@ func equalsCrypt(plainText []byte, decryptedText []byte) {
 }
 
 func main() {
+	histogramImgPath := getEnv("HISTOGRAM_IMG_PATH", "results/histogram.png")
+	histogramCsvPath := getEnv("HISTOGRAM_CSV_PATH", "results/histogram.csv")
+	srcImgPath := getEnv("SRC_IMG_PATH", "imgs/gradient.png")
+
+	_ = os.Remove(histogramImgPath)
+	_ = os.Remove(histogramCsvPath)
+
 	var xorKey uint32 = 42
 	var aesKey = []byte("abcdefgzxrtyui16")
-	srcImgPath := "imgs/gradient.png"
 
 	if len(os.Args) > 1 {
 		srcImgPath = os.Args[1]
@@ -213,6 +229,15 @@ func main() {
 		return
 	}
 
+	//Чувствительность к изменению ключа
+	aesKey2 := []byte(("abcdefgzxrtyui17"))
+	cipherCTRText2, err := runCTR(pixels, bounds, aesKey2, srcImgPath)
+	if err != nil {
+		fmt.Println("Сбой работы CTR: ", err)
+		return
+	}
+
+	//метрики
 	fmt.Println("===== Энтропия: =====")
 	fmt.Printf("Оригинальное изображение: %f\n", CalcEntropy(pixels))
 	fmt.Printf("XOR шифровка: %f\n", CalcEntropy(cipherXORText))
@@ -229,14 +254,39 @@ func main() {
 	fmt.Printf("ECB шифровка: гориз. = %f верт. = %f\n", hECBCol, vECBCol)
 	fmt.Printf("CTR шифровка: гориз. = %f верт. = %f\n", hCTRCol, vCTRCol)
 
+	metrics := []MetricRow{
+		{"Оригинальное изображение", CalcEntropy(pixels), hOrigCol, vOrigCol},
+		{"XOR шифровка", CalcEntropy(cipherXORText), hXORCol, vXORCol},
+		{"ECB шифровка", CalcEntropy(cipherECBText), hECBCol, vECBCol},
+		{"CTR шифровка", CalcEntropy(cipherCTRText), hCTRCol, vCTRCol},
+	}
+	err = SaveMetrics(metricsPathFile, metrics)
+	if err != nil {
+		fmt.Println("Сбой при сохранении метрик: ", err)
+		return
+	}
+
 	//частоты
 	origFreq := CalcFrequency(pixels)
 	xorFreq := CalcFrequency(cipherXORText)
 	ecbFreq := CalcFrequency(cipherECBText)
 	ctrFreq := CalcFrequency(cipherCTRText)
-	err = saveHistogram("results/histogram.csv", origFreq, xorFreq, ecbFreq, ctrFreq)
+	err = SaveHistogram(histogramCsvPath, origFreq, xorFreq, ecbFreq, ctrFreq)
 	if err != nil {
 		fmt.Println("Сбой при сохранении гистограммы: ", err)
+		return
+	}
+
+	fmt.Println("===== Чувствительность к изменению ключа: =====")
+	npcr := CalcNPCR(cipherCTRText, cipherCTRText2)
+	uaci := CalcUACI(cipherCTRText, cipherCTRText2)
+	fmt.Printf("NPCR: %f %%\n", npcr*100)
+	fmt.Printf("UACI: %f %%\n", uaci*100)
+
+	//создание  отчета
+	err = WriteReport(reportPathFile, metrics, npcr, uaci, histogramImgPath)
+	if err != nil {
+		fmt.Println("Сбой работы при создании отчета: ", err)
 		return
 	}
 }

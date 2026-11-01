@@ -9,6 +9,13 @@ import (
 	"strconv"
 )
 
+type MetricRow struct {
+	Method  string
+	Entropy float64
+	CorrH   float64
+	CorrV   float64
+}
+
 func CalcEntropy(data []byte) float64 {
 	total := len(data)
 
@@ -112,7 +119,7 @@ func CalcFrequency(data []byte) [256]int {
 	return counts
 }
 
-func saveHistogram(filePath string, orig, xor, ecb, ctr [256]int) error {
+func SaveHistogram(filePath string, orig, xor, ecb, ctr [256]int) error {
 	file, err := os.Create(filePath)
 	if err != nil {
 		return fmt.Errorf("не удалось создать файл: %w", err)
@@ -139,6 +146,37 @@ func saveHistogram(filePath string, orig, xor, ecb, ctr [256]int) error {
 		err = writer.Write(row)
 		if err != nil {
 			return fmt.Errorf("не удалось записать строку: %w", err)
+		}
+	}
+	return nil
+}
+
+func SaveMetrics(filePath string, rows []MetricRow) error {
+	file, err := os.Create(filePath)
+	if err != nil {
+		return fmt.Errorf("Не удалось создать файл: %w", err)
+	}
+
+	defer file.Close()
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	header := []string{"Method", "entropy", "CorrH", "CorrV"}
+	err = writer.Write(header)
+	if err != nil {
+		return fmt.Errorf("Не удалось записать заголовок: %w", err)
+	}
+
+	for _, row := range rows {
+		record := []string{
+			row.Method,
+			fmt.Sprintf("%f", row.Entropy),
+			fmt.Sprintf("%f", row.CorrH),
+			fmt.Sprintf("%f", row.CorrV),
+		}
+		err = writer.Write(record)
+		if err != nil {
+			return fmt.Errorf("Не удалось записать строку: %w", err)
 		}
 	}
 	return nil

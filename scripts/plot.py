@@ -1,9 +1,15 @@
 import csv
+import os
+import sys
 import matplotlib.pyplot as plt
 
 def main():
-    csv_path = 'results/histogram.csv'
-    out_path = 'results/histogram.png'
+    csv_path = os.getenv('HISTOGRAM_CSV_PATH', 'results/histogram.csv')
+    out_path = os.getenv('HISTOGRAM_IMG_PATH', 'results/histogram.png')
+
+    if not os.path.exists(csv_path):
+        print(f'Файл {csv_path} не найден. Пожалуйста, убедитесь, что он существует.')
+        sys.exit(1)
 
     bytes_range = []
     orig = []
@@ -37,8 +43,8 @@ def main():
         ax.grid(True, linestyle='--', alpha=0.5)
 
     plt.tight_layout()
-    plt.savefig(out_path)
-    print(f'Гистограмма сохранена в {out_path}')
+    plt.savefig(out_path, dpi=300)
+    print(f'\nГистограмма сохранена в {out_path}')
 
 if __name__ == '__main__':
     main()
