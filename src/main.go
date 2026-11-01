@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-const jsonPathFile string = "meta.json"
+const jsonPathFile string = "results/meta.json"
 
 func runXOR(pixels []byte, bounds image.Rectangle, key uint32, srcImgPath string) ([]byte, error) {
 	fmt.Println("\n===== Работа XOR: =====\n")
@@ -154,8 +154,8 @@ func createOutPath(srcImgPath string, alg string) (srcDecImgPath string, srcEncI
 	ext := filepath.Ext(baseName)
 	name := strings.TrimSuffix(baseName, ext)
 
-	srcDecImgPath = filepath.Join("results", name+alg+"-dec"+ext)
-	srcEncImgPath = filepath.Join("results", name+alg+"-enc"+ext)
+	srcDecImgPath = filepath.Join("imgs", name+alg+"-dec"+ext)
+	srcEncImgPath = filepath.Join("imgs", name+alg+"-enc"+ext)
 
 	return srcDecImgPath, srcEncImgPath
 }
@@ -228,4 +228,15 @@ func main() {
 	fmt.Printf("XOR шифровка: гориз. = %f верт. = %f\n", hXORCol, vXORCol)
 	fmt.Printf("ECB шифровка: гориз. = %f верт. = %f\n", hECBCol, vECBCol)
 	fmt.Printf("CTR шифровка: гориз. = %f верт. = %f\n", hCTRCol, vCTRCol)
+
+	//частоты
+	origFreq := CalcFrequency(pixels)
+	xorFreq := CalcFrequency(cipherXORText)
+	ecbFreq := CalcFrequency(cipherECBText)
+	ctrFreq := CalcFrequency(cipherCTRText)
+	err = saveHistogram("results/histogram.csv", origFreq, xorFreq, ecbFreq, ctrFreq)
+	if err != nil {
+		fmt.Println("Сбой при сохранении гистограммы: ", err)
+		return
+	}
 }

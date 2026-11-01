@@ -1,17 +1,18 @@
 package main
 
 import (
+	"encoding/csv"
+	"fmt"
 	"image"
 	"math"
+	"os"
+	"strconv"
 )
 
 func CalcEntropy(data []byte) float64 {
 	total := len(data)
 
-	var counts [256]int
-	for _, el := range data {
-		counts[el]++
-	}
+	counts := CalcFrequency(data)
 
 	var entropy float64 = 0.0
 	for _, count := range counts {
@@ -101,4 +102,44 @@ func CalcCorrelation(pixels []byte, bounds image.Rectangle) (corrH float64, corr
 
 	corrV = pearsonCorr(vx, vy)
 	return corrH, corrV
+}
+
+func CalcFrequency(data []byte) [256]int {
+	var counts [256]int
+	for _, el := range data {
+		counts[el]++
+	}
+	return counts
+}
+
+func saveHistogram(filePath string, orig, xor, ecb, ctr [256]int) error {
+	file, err := os.Create(filePath)
+	if err != nil {
+		return fmt.Errorf("не удалось создать файл: %w", err)
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	header := []string{"byte", "original", "xor", "ecb", "ctr"}
+	err = writer.Write(header)
+	if err != nil {
+		return fmt.Errorf("не удалось записать заголовок: %w", err)
+	}
+
+	for i := 0; i < 256; i++ {
+		row := []string{
+			strconv.Itoa(i),
+			strconv.Itoa(orig[i]),
+			strconv.Itoa(xor[i]),
+			strconv.Itoa(ecb[i]),
+			strconv.Itoa(ctr[i]),
+		}
+		err = writer.Write(row)
+		if err != nil {
+			return fmt.Errorf("не удалось записать строку: %w", err)
+		}
+	}
+	return nil
 }
