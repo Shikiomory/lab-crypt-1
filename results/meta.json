@@ -1,5 +1,5 @@
 {
   "algoritm": "aes-ctr",
-  "Nonce": "031031692d3fc297aa3243525e7f2927",
-  "source": "gradientCTR-dec.png"
+  "Nonce": "2232abc30cbc084cb20c07650aefbdb6",
+  "source": "checkerboardCTR-dec.png"
 }

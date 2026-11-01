@@ -65,8 +65,19 @@ docker compose up --build
 
 Запуск с другим изображением, например `imgs/photo.png`:
 
+* **Linux/macOs:**
 ```sh
 SRC_IMG_PATH=/app/imgs/photo.png docker compose up --build
+```
+
+* **Windows(PowerShell):**
+```sh
+$env:SRC_IMG_PATH="/app/imgs/photo.png"; docker compose up --build
+```
+
+* **Универсально (файл .env рядом с docker-compose.yml)**
+```sh
+SRC_IMG_PATH=/app/imgs/photo.png
 ```
 
 ### Параметры

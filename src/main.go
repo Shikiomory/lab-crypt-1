@@ -283,10 +283,10 @@ func main() {
 	fmt.Printf("NPCR: %f %%\n", npcr*100)
 	fmt.Printf("UACI: %f %%\n", uaci*100)
 
-	//создание  отчета
-	err = WriteReport(reportPathFile, metrics, npcr, uaci, histogramImgPath)
-	if err != nil {
-		fmt.Println("Сбой работы при создании отчета: ", err)
-		return
-	}
+	//создание  отчета (Не, впадлу)
+	// err = WriteReport(reportPathFile, metrics, npcr, uaci, histogramImgPath)
+	// if err != nil {
+	// 	fmt.Println("Сбой работы при создании отчета: ", err)
+	// 	return
+	// }
 }
