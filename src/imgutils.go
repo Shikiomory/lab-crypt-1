@@ -18,7 +18,7 @@ func readImage(filePath string) ([]byte, image.Rectangle, error) {
 
 	srcImg, err := png.Decode(file)
 	if err != nil {
-		return nil, image.Rectangle{}, fmt.Errorf("Ошибка при распаковке изображения")
+		return nil, image.Rectangle{}, fmt.Errorf("Ошибка при распаковке изображения: %w", err)
 	}
 
 	bounds := srcImg.Bounds()
@@ -44,7 +44,7 @@ func saveImage(pixels []byte, bounds image.Rectangle, filePath string) error {
 
 	err = png.Encode(outFile, img)
 	if err != nil {
-		return fmt.Errorf("Ошибка при кодировании файла", err)
+		return fmt.Errorf("Ошибка при кодировании файла: %w", err)
 	}
 
 	return nil
